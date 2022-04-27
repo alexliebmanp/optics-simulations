@@ -18,7 +18,7 @@ def compute_optical_system(optical_components):
     returns the net OpticalComponent object of an optical system.
 
     Arg:
-        - optical_components: list of optical components in order in which they appear on from beam direction.
+        - optical_components (list): list of optical components in order in which they appear on from beam direction.
     """
 
     optical_system = np.identity(2)
@@ -27,6 +27,22 @@ def compute_optical_system(optical_components):
         optical_system = optical_system @ oc.jones
 
     return OpticalComponent(optical_system)
+
+def corotate(angle_rad, optical_system, ind_list):
+    '''
+        corotates a set of optical components in a system and returns the rotated systems. Original optical system is left unmodified.
+
+    Args:
+        - angle_rad (float): angle to rotate in radians
+        - optical_system (list): optical system (list of components) by which to rotate
+        - ind_list (list): list of indices that specify which components to rotate
+    '''
+    for i in ind_list:
+        optical_system[i].rotate(angle_rad)
+    rotated_system = compute_optical_system(optical_system)
+    for i in ind_list:
+        optical_system[i].rotate(-angle_rad)
+    return rotated_system
 
 
 class OpticalComponent:
@@ -47,7 +63,7 @@ class OpticalComponent:
         rotates OpticalComponent by angle_rad relative to current angle.
 
         Args:
-            - angle_rad: angle of rotation in radians
+            - angle_rad (float): angle of rotation in radians
 
         '''
 
@@ -59,7 +75,7 @@ class OpticalComponent:
         set absolute angle of OpticalComponent to angle_rad
 
         Args:
-            - angle_rad: angle of rotation in radians
+            - angle_rad (float): angle of rotation in radians
         '''
 
         current_angle = self.angle
@@ -90,10 +106,10 @@ class Polarizer(OpticalComponent):
 
 class Retarder(OpticalComponent):
     """
-    a general retarder such as a birefringent materials
+    a general retarder such as a birefringent material
     Args:
-        - phix: phase shift along the x axis
-        - phiy: phase shift along y axis
+        - phix (float): phase shift along the x axis
+        - phiy (float): phase shift along y axis
 
     Todo: how to relate dielectric tensor directly to Jones matrix.
     """
@@ -123,5 +139,28 @@ class HWP(Retarder):
     def __init__(self, angle_rad):
 
         self.jones = np.asarray([[-1,0],[0,1]])
+        self.angle = 0
+        self.set_angle(angle_rad)
+
+class GeneralSample(OpticalComponent):
+    '''
+    a general sample with transmission/reflection matrix of the form:
+
+            |    r0 + dr    gamma - delta |
+      T/R = |                             |
+            | gamma + delta    r0 - dr    |
+
+    note that all components can be real or imaginary
+
+    Args:
+        - r0 (float):       dominant diagonal component, representing reflectivity
+        - dr (float):       difference in diagonal, representing birefringence
+        - gamma (float):    symmetric off-diagonal
+        - delta (float):    antisymmetric off-diagonal
+    '''
+
+    def __init__(self, angle_rad, r0, dr, gamma, delta):
+
+        self.jones = np.asarray([[r0 + dr, gamma - delta],[gamma + delta, r0 - dr]])
         self.angle = 0
         self.set_angle(angle_rad)
