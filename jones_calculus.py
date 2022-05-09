@@ -3,9 +3,16 @@
                         and as well as tools for simulating the affect of
                         an optical systems on a polarized light beam.
 
-                        all angles measured relative to y axis
+                        all angles measured relative to y axis ('vertical direction')
 
                         based off of numpy.ndarray
+
+                        Todo:
+                        (1) come up with better way to act an optical system on a polarization vector, as opposed to doing it by calling the Jones matrix and using @ functional.
+                        (2) incorporate formalism for getting R and T from dielectric tensor directly.
+                        (3) separate into two files, one for class definitions and one for various functions. alternatively, can make an optical system a class on it's own with its own methods such as compute_optical_system() and corotate()
+                        (4) Handle 3D polarization vectors
+
     @author: oxide
 """
 import numpy as np
@@ -98,7 +105,7 @@ class Polarizer(OpticalComponent):
     a linear polarizer which projects a Jones vector onto an axis defined by the angle.
     """
 
-    def __init__(self, angle_rad):
+    def __init__(self, angle_rad=0):
 
         self.jones = np.asarray([[0,0],[0,1]])
         self.angle = 0
@@ -114,7 +121,7 @@ class Retarder(OpticalComponent):
     Todo: how to relate dielectric tensor directly to Jones matrix.
     """
 
-    def __init__(self, angle_rad, phix, phiy):
+    def __init__(self, phix, phiy, angle_rad=0):
 
         self.jones = np.asarray([[np.exp(1j*phix), 0], [0, np.exp(1j*phiy)]])
         self.angle = 0
@@ -125,7 +132,7 @@ class QWP(Retarder):
     a quarter wave plate (valid only for one wavelength), with fast axis vertical
     """
 
-    def __init__(self, angle_rad):
+    def __init__(self, angle_rad=0):
 
         self.jones = np.asarray([[1,0],[0,-1j]])
         self.angle = 0
@@ -136,7 +143,7 @@ class HWP(Retarder):
     half wave plate, fast axis vertical
     """
 
-    def __init__(self, angle_rad):
+    def __init__(self, angle_rad=0):
 
         self.jones = np.asarray([[-1,0],[0,1]])
         self.angle = 0
@@ -152,6 +159,8 @@ class GeneralSample(OpticalComponent):
 
     note that all components can be real or imaginary
 
+    ** Is there a better name for this class??**
+
     Args:
         - r0 (float):       dominant diagonal component, representing reflectivity
         - dr (float):       difference in diagonal, representing birefringence
@@ -159,7 +168,7 @@ class GeneralSample(OpticalComponent):
         - delta (float):    antisymmetric off-diagonal
     '''
 
-    def __init__(self, angle_rad, r0, dr, gamma, delta):
+    def __init__(self, r0, dr, gamma, delta, angle_rad=0):
 
         self.jones = np.asarray([[r0 + dr, gamma - delta],[gamma + delta, r0 - dr]])
         self.angle = 0
