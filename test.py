@@ -2,6 +2,8 @@ from jones_calculus import *
 import numpy as np
 import matplotlib.pyplot as plt
 
+# hi
+
 Ei = np.asarray([0,1])
 r0 = 0.5
 dr = 0
