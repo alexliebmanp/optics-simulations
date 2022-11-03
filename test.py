@@ -1,20 +1,25 @@
-from jones_calculus import *
+from optics_simulations.jones_calculus import *
 import numpy as np
 import matplotlib.pyplot as plt
 
 # hi
 
 Ei = np.asarray([0,1])
-r0 = 0.5
-dr = 0
-gamma = 0
-delta = 0.4
+r0 = 1
+dr = 0.1
+gamma = 0.1
+delta = 0
 phix = 0.5
 phiy = 0.1
 #r0 = (1/2)*(np.exp(1j*phix) + (1/2)*np.exp(1j*phiy))
 #dr = (1/2)*(np.exp(1j*phix) - (1/2)*np.exp(1j*phiy))
+'''
+            |    r0 + dr    gamma - delta |
+      T/R = |                             |
+            | gamma + delta    r0 - dr    |
+'''
 crystal = GeneralSample(r0, dr, gamma, delta, 0)
-crystal = Retarder(phix, phiy)
+#crystal = Retarder(phix, phiy)
 #crystal = OpticalComponent()
 
 hwp1 = HWP(0)
@@ -26,7 +31,6 @@ fig, [ax1, ax2] = plt.subplots(1,2)
 ## tests
 
 ## reflectivity
-
 S_reflectivity = np.zeros(len(angles))
 for ii, a in enumerate(angles):
     osi = corotate(a, [hwp1, crystal, hwp2], [0, 2])
@@ -35,11 +39,10 @@ for ii, a in enumerate(angles):
     S_reflectivity[ii] = S
 
 ax1.plot(angles*2, S_reflectivity)
-ax1.set_ylim(0,1.5)
+#ax1.set_ylim(0,None)
 
 ## birefringence
 hwp2.rotate(np.pi/8)
-
 S_bf = np.zeros(len(angles))
 for ii, a in enumerate(angles):
     osi = corotate(a, [hwp1, crystal, hwp2], [0, 2])

@@ -1,0 +1,5 @@
+# anything pycache
+*.pyc
+
+# look in folder directly
+__pycache__

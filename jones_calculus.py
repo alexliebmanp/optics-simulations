@@ -51,6 +51,7 @@ def corotate(angle_rad, optical_system, ind_list):
         optical_system[i].rotate(-angle_rad)
     return rotated_system
 
+## optical components
 
 class OpticalComponent:
 
