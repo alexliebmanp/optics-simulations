@@ -2,4 +2,4 @@
 *.pyc
 
 # look in folder directly
-__pycache__
+__pycache__/
